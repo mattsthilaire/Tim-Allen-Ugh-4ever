@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Repeat Audio</title>
+</head>
+<body>
+    <img src="{{ url_for('static', filename='images/tim-allen-photo.jpeg') }}" alt="Picture" style="position: relative;">
+    <audio controls autoplay loop>
+        <source src="{{ url_for('static', filename='audio/ugh.mp3') }}" type="audio/mpeg">
+        Your browser does not support the audio tag.
+    </audio>
+</body>
+</html>
