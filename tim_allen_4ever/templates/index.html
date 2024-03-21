@@ -3,12 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <title>Repeat Audio</title>
+    <style>
+        body {
+            text-align: center; /* Center the content */
+        }
+        audio {
+            display: block; /* Block display to put it on a new line */
+            margin: 10px auto; /* Adds space around the audio controls and centers them */
+        }
+        img {
+            max-width: 90%; /* Adjust as needed for your layout */
+            height: auto; /* Maintain aspect ratio */
+        }
+    </style>
 </head>
 <body>
-    <img src="{{ url_for('static', filename='images/tim-allen-photo.jpeg') }}" alt="Picture" style="position: relative;">
-    <audio controls autoplay loop>
+    <div id="image-container">
+        <img id="current-image" src="{{ url_for('static', filename='images/' + images[0]) }}" alt="Picture" width="450" height="450"/>
+    </div>
+    <audio controls autoplay loop id="audio-player">
         <source src="{{ url_for('static', filename='audio/ugh.mp3') }}" type="audio/mpeg">
         Your browser does not support the audio tag.
     </audio>
+    <script>
+        var images = ['tim-allen-1.jpeg', 'tim-allen-2.jpeg', 'tim-allen-3.jpeg', 'tim-allen-4.jpeg', 'tim-allen-5.jpeg',
+        'tim-allen-6.jpeg', 'tim-allen-7.jpeg', 'tim-allen-8.jpeg', 'tim-allen-9.jpeg', 'tim-allen-10.jpeg', 'tim-allen-11.jpeg',
+        'tim-allen-12.jpeg']; // List of image filenames
+        var currentIndex = 0;
+        var interval; // Variable to hold the interval ID
+
+        var audioPlayer = document.getElementById('audio-player');
+        var imageContainer = document.getElementById('current-image');
+
+        // Function to change the image
+        function changeImage() {
+            currentIndex = (currentIndex + 1) % images.length; // Loop back to the first image after the last one
+            imageContainer.src = "{{ url_for('static', filename='images/') }}" + images[currentIndex];
+        }
+
+        // Function to set up the interval check
+        function setupInterval(duration) {
+            if (interval) {
+                clearInterval(interval); // Clear existing interval, if any
+            }
+            interval = setInterval(function() {
+                if (audioPlayer.currentTime >= duration - 0.5) { // Check if within half a second from the end
+                    changeImage(); // Change the image
+                    clearInterval(interval); // Clear the interval
+                    setupInterval(duration); // Set up the interval again for the next loop
+                }
+            }, 200); // Check every 200ms. Adjust as needed for accuracy vs. performance
+        }
+
+        // Set up the interval once the audio metadata is loaded
+        audioPlayer.addEventListener('loadedmetadata', function() {
+            setupInterval(audioPlayer.duration);
+        });
+    </script>
 </body>
 </html>
