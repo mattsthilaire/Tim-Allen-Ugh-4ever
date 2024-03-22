@@ -4,8 +4,30 @@
     <meta charset="UTF-8">
     <title>Repeat Audio</title>
     <style>
-        body {
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
             text-align: center; /* Center the content */
+        }
+        #nirvana-button {
+            background-image: url('{{ url_for('static', filename='images/button.jpeg') }}');
+            background-size: cover;
+            height: 135px; /* Adjust as needed */
+            width: 200px; /* Adjust as needed */
+            border: none;
+            cursor: pointer;
+        }
+        #header-text {
+            font-size: 2em;
+            text-align: center;
+        }
+        /* Hide the content by default */
+        #content {
+            display: none;
         }
         audio {
             display: block; /* Block display to put it on a new line */
@@ -18,47 +40,53 @@
     </style>
 </head>
 <body>
-    <div id="image-container">
-        <img id="current-image" src="{{ url_for('static', filename='images/' + images[0]) }}" alt="Picture" width="450" height="450"/>
+    <h1 id="header-text">Are you Ready to Reach Nirvana?</h1>
+    <button id="nirvana-button"></button>
+    <div id="content">
+        <div id="image-container">
+            <img id="current-image" src="{{ url_for('static', filename='images/' + images[0]) }}" alt="Picture" width="450" height="450"/>
+        </div>
+        <audio controls autoplay loop id="audio-player">
+            <source src="{{ url_for('static', filename='audio/ugh.mp3') }}" type="audio/mpeg">
+            Your browser does not support the audio tag.
+        </audio>
     </div>
-    <audio controls autoplay loop id="audio-player">
-        <source src="{{ url_for('static', filename='audio/ugh.mp3') }}" type="audio/mpeg">
-        Your browser does not support the audio tag.
-    </audio>
-    <script>
-        var images = ['tim-allen-1.jpeg', 'tim-allen-2.jpeg', 'tim-allen-3.jpeg', 'tim-allen-4.jpeg', 'tim-allen-5.jpeg',
-        'tim-allen-6.jpeg', 'tim-allen-7.jpeg', 'tim-allen-8.jpeg', 'tim-allen-9.jpeg', 'tim-allen-10.jpeg', 'tim-allen-11.jpeg',
-        'tim-allen-12.jpeg']; // List of image filenames
-        var currentIndex = 0;
-        var interval; // Variable to hold the interval ID
+    <script> 
+        document.getElementById('nirvana-button').addEventListener('click', function() { 
+                document.getElementById('header-text').style.display = 'none'; 
+                this.style.display = 'none'; 
+                document.getElementById('content').style.display = 'block';
 
-        var audioPlayer = document.getElementById('audio-player');
-        var imageContainer = document.getElementById('current-image');
-
-        // Function to change the image
-        function changeImage() {
-            currentIndex = (currentIndex + 1) % images.length; // Loop back to the first image after the last one
-            imageContainer.src = "{{ url_for('static', filename='images/') }}" + images[currentIndex];
-        }
-
-        // Function to set up the interval check
-        function setupInterval(duration) {
-            if (interval) {
-                clearInterval(interval); // Clear existing interval, if any
-            }
-            interval = setInterval(function() {
-                if (audioPlayer.currentTime >= duration - 0.5) { // Check if within half a second from the end
-                    changeImage(); // Change the image
-                    clearInterval(interval); // Clear the interval
-                    setupInterval(duration); // Set up the interval again for the next loop
+                var images = ['tim-allen-1.jpeg', 'tim-allen-2.jpeg', 'tim-allen-3.jpeg', 'tim-allen-4.jpeg', 'tim-allen-5.jpeg',
+                    'tim-allen-6.jpeg', 'tim-allen-7.jpeg', 'tim-allen-8.jpeg', 'tim-allen-9.jpeg', 'tim-allen-10.jpeg', 'tim-allen-11.jpeg',
+                    'tim-allen-12.jpeg']; // List of image filenames
+                var currentIndex = 0;
+                var interval; // Variable to hold the interval ID
+        
+                var audioPlayer = document.getElementById('audio-player');
+                var imageContainer = document.getElementById('current-image');
+        
+                // Function to change the image
+                function changeImage() {
+                    currentIndex = (currentIndex + 1) % images.length; // Loop back to the first image after the last one
+                    imageContainer.src = "{{ url_for('static', filename='images/') }}" + images[currentIndex];
                 }
-            }, 200); // Check every 200ms. Adjust as needed for accuracy vs. performance
-        }
 
-        // Set up the interval once the audio metadata is loaded
-        audioPlayer.addEventListener('loadedmetadata', function() {
-            setupInterval(audioPlayer.duration);
-        });
-    </script>
+                // Update the image whenever the audio's current time matches the desired interval
+                audioPlayer.addEventListener('timeupdate', function() {
+                    if (audioPlayer.currentTime >= audioPlayer.duration - 0.5) { // Update the image every 5 seconds
+                        changeImage();
+                    }
+                });
+        
+                // Set up the interval once the audio metadata is loaded
+                audioPlayer.addEventListener('loadedmetadata', function() {
+                    setupInterval(audioPlayer.duration);
+                });
+
+                // Play the audio when the button is clicked
+                audioPlayer.play();
+            });
+        </script>
 </body>
 </html>
